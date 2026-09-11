@@ -23,24 +23,39 @@
         </div>
 
         <div class="journeys">
-            <div class="journey">
-                <div class="times">
-                    <div class="leave">12:05</div>
-                    <div class="dots"></div>
-                    <div class="arrow">--></div>
-                    <div class="dots"></div>
-                    <div class="arrive">12:55</div>
+            <div class="journey" id="journey-1" onclick="toggleInfo(this)">
+                <div class="total-time">
+                    12:05 - 13:01, 56 min
                 </div>
-                <div class="services">
-                    <div class="service">531 (6 min)</div>
-                    <div class="service">Gå (1 min)</div>
-                    <div class="service">V-TÅG (17 min)</div>
+
+                <div class="times">
+                    <div class="service">
+                        <div class="leave">12:05</div>
+                        <div class="label">531 (6 min)</div>
+                        <div class="arrive">12:11</div>
+                    </div>
+                    <div class="change">
+                        <div class="leave">12:11</div>
+                        <div class="label">Läge 3 (2 min)</div>
+                        <div class="arrive">12:13</div>
+                    </div>
+                    <div class="service">
+                        <div class="leave">12:37</div>
+                        <div class="label">V-TÅG (17 min)</div>
+                        <div class="arrive">12:55</div>
+                    </div>
+                    <div class="final">
+                        <div class="leave">12:55</div>
+                        <div class="label">Framme</div>
+                        <div class="arrive">13:01</div>
+                    </div>
                 </div>
 
                 <div class="services-info">
-                    <div class="service">531 Lerum Station, B (6 min)</div>
-                    <div class="service">Läge 3, Lerum Station (2 min)</div>
-                    <div class="service">V-TÅG Göteborg C, 1 (17 min)</div>
+                    <div class="service">12:05 Lerums Kyrka, 531 Lerum Station, B (6 min)</div>
+                    <div class="service">12:11 Byte, Läge 2, Lerum Station (2 min)</div>
+                    <div class="service">12:37 Lerum Station, 2, V-TÅG Göteborg C, 1 (17 min)</div>
+                    <div class="service">12:55 Framme, Lilla Bommen, (6 min)</div>
                 </div>
             </div>
         </div>
