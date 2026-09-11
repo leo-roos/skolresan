@@ -3,6 +3,24 @@
 const homeGID = "9021014017153000"
 const schoolGID = "9021014004380000"
 
+function createElement(type = "div", className = "", classNames = [], id = "") {
+    const element = document.createElement(type);
+    if (className != "") {
+        element.className = className;
+    }
+    if (classNames != []) {
+        for (let index = 0; index < classNames.length; index++) {
+            const _className = classNames[index];
+            element.classList.add(_className);
+        }
+    }
+    if (id != "") {
+        element.id = id;
+    }
+
+    return element;
+}
+
 function getMinutesDate(date) {
     return date.getMinutes() + ((date.getHours() - 1) * 60)
 }
@@ -42,6 +60,41 @@ document.addEventListener('DOMContentLoaded', async function() {
                     actual: arrival,
                 }
             }
+
+            // const connection = result.connectionLinks.find((connection) => connection.journeyLegIndex == (index2 + 1));
+            // let connectionData;
+            // if (connection) {
+            //     const departureConnection = new Date(connection.plannedDepartureTime);
+            //     const arrivalConnection = new Date(connection.plannedArrivalTime);
+            //     const differenceTimeConnection = new Date(departureConnection - arrivalConnection);
+                
+            //     connectionData = {
+            //         type: connection.transportMode,
+            //         departure: {
+            //             planned: departureConnection,
+            //             actual: departureConnection
+            //         },
+            //         arrival: {
+            //             planned: arrivalConnection,
+            //             actual: arrivalConnection
+            //         },
+            //         time: {
+            //             planned: differenceTimeConnection,
+            //             actual: differenceTimeConnection
+            //         },
+            //         line: {
+            //             direction: {
+            //                 name: connection.destination.stopPoint.stopArea.name,
+            //                 platform: connection.destination.stopPoint.platform
+            //             },
+            //         },
+            //         stopArea: {
+            //             name: connection.origin.stopPoint.stopArea.name
+            //         },
+
+            //         distanceMeters: connection.distanceInMeters,
+            //     }
+            // }
             
             tripLegs.push({
                 departure: {
@@ -59,6 +112,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 line: {
                     direction: {
                         name: tripLeg.destination.stopPoint.stopArea.name,
+                        shortName: tripLeg.serviceJourney.line.shortName,
                         platform: tripLeg.destination.stopPoint.platform
                     },
 
@@ -71,7 +125,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 },
                 stopArea: {
                     name: tripLeg.origin.stopPoint.stopArea.name
-                }
+                },
+                // connection: connectionData
             })
         }
 
@@ -94,73 +149,63 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     console.log(journeys);
 
-    const journeysDiv = document.querySelector(".journeys");
-    journeysDiv.innerHTML = ``;
-    for (let index = 0; index < journeys.length; index++) {
-        const journey = journeys[index];
-
-        const journeyDiv = document.createElement("div");
-        journeyDiv.classList.add("journey");
+    function createJourneyDiv(journey, index) {
+        const journeyDiv = createElement(type="div", className="journey");
         journeyDiv.id = `journey-${index}`;
         
-        const totalTimeDiv = document.createElement("div");
-        totalTimeDiv.classList.add("total-time");
-
-        const timesDiv = document.createElement("div");
-        timesDiv.classList.add("times");
-
-        const servicesInfoDiv = document.createElement("div");
-        servicesInfoDiv.classList.add("services-info");
+        const totalTimeDiv = createElement(type="div", className="total-time");
+        const timesDiv = createElement(type="div", className="times");
+        const servicesInfoDiv = createElement(type="div", className="services-info");
 
         const plannedDepartureTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(journey.departureTime.planned);
         const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(journey.arrivalTime.planned);
         totalTimeDiv.innerHTML = `${plannedDepartureTimeFormatted} - ${plannedArrivalTimeFormatted}, ${getMinutesDate(journey.time.planned)} min`;
+        
+        function createTripLegDiv(tripLeg) {
+            const serviceDiv = createElement(type="div", className="service");
 
-        for (let index2 = 0; index2 < journey.tripLegs.length; index2++) {
-            const tripLeg = journey.tripLegs[index2];
-            const serviceDiv = document.createElement("div");
-            serviceDiv.classList.add("service");
-
-            const departureDiv = document.createElement("div");
-            departureDiv.classList.add("departure");
+            const departureDiv = createElement(type="div", className="departure");
             const plannedDepartureTime = tripLeg.departure.planned;
             const plannedDepartureTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(plannedDepartureTime);
             departureDiv.innerHTML = `${plannedDepartureTimeFormatted}`;
 
-            const labelDiv = document.createElement("div");
-            labelDiv.classList.add("label");
+            const labelDiv = createElement(type="div", className="label");
 
             if (tripLeg.line.type == "train") {
-                labelDiv.innerHTML = `${tripLeg.line.designation} V-TÅG`;
+                labelDiv.innerHTML = `${tripLeg.line.designation} ${tripLeg.line.direction.shortName}`;
             } else {
                 labelDiv.innerHTML = `${tripLeg.line.designation}`;
             }
             labelDiv.innerHTML += ` (${getMinutesDate(tripLeg.time.planned)} min)`
 
-            const arriveDiv = document.createElement("div");
-            arriveDiv.classList.add("arrive");
+            const arriveDiv = createElement(type="div", className="arrive");
             const plannedArrivalTime = tripLeg.arrival.planned;
             const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(plannedArrivalTime);
             arriveDiv.innerHTML = `${plannedArrivalTimeFormatted}`;
 
             // add to services-info div
-            const serviceInfoDiv = document.createElement("div");
-            serviceInfoDiv.classList.add("service");
-            serviceInfoDiv.innerHTML =
-`${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)`
+            const serviceInfoDiv = createElement(type="div", className="service");
+            serviceInfoDiv.innerHTML = `${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)`
 
             servicesInfoDiv.append(serviceInfoDiv);
 
             serviceDiv.append(departureDiv, labelDiv, arriveDiv);
-            timesDiv.append(serviceDiv);
+
+            return serviceDiv;
         }
 
-        // <div class="services-info">
-        //     <div class="service">12:05 Lerums Kyrka, 531 Lerum Station, B (6 min)</div>
-        //     <div class="service">12:11 Byte, Läge 2, Lerum Station (2 min)</div>
-        //     <div class="service">12:37 Lerum Station, 2, V-TÅG Göteborg C, 1 (17 min)</div>
-        //     <div class="service">12:55 Framme, Lilla Bommen, (6 min)</div>
-        // </div>
+        for (let index2 = 0; index2 < journey.tripLegs.length; index2++) {
+            const tripLeg = journey.tripLegs[index2];
+            
+            const serviceDiv = createTripLegDiv(tripLeg);
+
+            timesDiv.append(serviceDiv);
+
+            if (tripLeg.connection) {
+                const connectionDiv = createTripLegDiv(tripLeg.connection);
+                timesDiv.append(connectionDiv);
+            }
+        }
 
         journeyDiv.addEventListener("click", function() {
             if (servicesInfoDiv.style.display === "none" || servicesInfoDiv.style.display === "") {
@@ -172,6 +217,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         })
 
         journeyDiv.append(totalTimeDiv, timesDiv, servicesInfoDiv);
+
+        return journeyDiv
+    }
+
+    const journeysDiv = document.querySelector(".journeys");
+    journeysDiv.innerHTML = ``;
+    for (let index = 0; index < journeys.length; index++) {
+        const journey = journeys[index];
+
+        const journeyDiv = createJourneyDiv(journey, index);
+        
         journeysDiv.append(journeyDiv);
 
 {/* <div class="journey" id="journey-${index}" onclick="toggleInfo(this)">
