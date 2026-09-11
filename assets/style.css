@@ -59,6 +59,8 @@ p {
 .journeys {
   display: flex;
   flex-direction: column;
+  width: 25vw;
+  min-width: 500px;
 }
 .journeys .journey {
   display: flex;
