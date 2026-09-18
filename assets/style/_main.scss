@@ -5,12 +5,26 @@
 
 body {
     background-color: $bgcolor;
+    color: $textColor;
     font-family: $font;
+    text-align: center;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.container {
     display: flex;
     flex-direction: column;
     gap: 5px;
     align-items: center;
-    text-align: center;
+
+    width: fit-content;
+    min-height: 100vh;
+    padding: 0 20px;
+    border-left: 1px solid $borderColor;
+    border-right: 1px solid $borderColor;
 }
 
 main {
@@ -20,7 +34,7 @@ main {
     align-items: center;
 }
 
-h1,h2,h3,h4 {
+h1, h2, h3, h4 {
     color: $mainColor;
 }
 p {
@@ -47,13 +61,13 @@ p {
             // border: 5px solid $mainColor;
             cursor: pointer;
 
-            transition: scale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            &:hover {
-                scale: 1.1;
-            }
-            &:active {
-                scale: 0.95;
-            }
+            // transition: scale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            // &:hover {
+            //     scale: 1.1;
+            // }
+            // &:active {
+            //     scale: 0.95;
+            // }
         }
     }
 }
@@ -61,31 +75,44 @@ p {
 .journeys {
     display: flex;
     flex-direction: column;
-    width: 25vw;
-    min-width: 500px;
+    align-items: center;
+    gap: 10px;
+    // width: 30vw;
+    // min-width: 500px;
     
     .journey {
+        // width: fit-content;
+        // width: 100%;
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 5px;
 
-        border: 2px solid $mainColor;
+        border: 1px solid $borderColor;
         padding: 5px;
         border-radius: 5px;
-        
-        cursor: pointer;
 
         .times {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
+            // justify-content: space-between;
             align-items: center;
             gap: 5px;
-            .service, .change, .final {
+            cursor: pointer;
+    
+            .service {
                 padding: 5px;
                 border: 1px solid #006c93;
+                border-radius: 5px;
                 background-color: #006c93;
                 color: #ffffff;
+
+                &.walk {
+                    background-color: #000;
+                    color: #fff;
+                    border-color: #fff;
+                    border-style: dashed;
+                }
             }
         }
 
@@ -93,7 +120,12 @@ p {
             display: none;
             flex-direction: column;
             align-items: start;
+            text-align: start;
             gap: 2px;
+        }
+
+        & > div {
+            width: 100%;
         }
     }
 }

@@ -1,7 +1,9 @@
-// localStorage.setItem("homeGID", "9021014017153000")
-// localStorage.setItem("schoolGID", "9021014004380000")
-const homeGID = "9021014017153000"
-const schoolGID = "9021014004380000"
+// localStorage.setItem("homeGID", "9021014017153000");
+// localStorage.setItem("schoolGID", "9021014004380000");
+let journeysDiv;
+const homeGID = "9021014017153000";
+const schoolGID = "9021014004380000";
+let trip = "home";
 
 function createElement(type = "div", className = "", classNames = [], id = "") {
     const element = document.createElement(type);
@@ -25,12 +27,13 @@ function getMinutesDate(date) {
     return date.getMinutes() + ((date.getHours() - 1) * 60)
 }
 
-document.addEventListener('DOMContentLoaded', async function() {
+async function updateJourneyUI() {
+    journeysDiv.innerHTML = `Loading trips...`;
+
     const token = await checkToken();
     // getStops(token);
     const journeysData = await getJourneys(token);
     const results = journeysData.results;
-    console.log(results)
     const journeys = [];
 
     for (let index = 0; index < results.length; index++) {
@@ -42,172 +45,209 @@ document.addEventListener('DOMContentLoaded', async function() {
         for (let index2 = 0; index2 < result.tripLegs.length; index2++) {
             const tripLeg = result.tripLegs[index2];
 
-            const departure = new Date(tripLeg.plannedDepartureTime);
-            const arrival = new Date(tripLeg.plannedArrivalTime);
-            const differenceTime = new Date(arrival - departure);
-            // console.log(arrival)
-            // console.log(departure)
-            // console.log(differenceTime)
-
+            const departure = {
+                planned: new Date(tripLeg.plannedDepartureTime),
+                actual: new Date(tripLeg.plannedDepartureTime)
+            }
+            const arrival = {
+                planned: new Date(tripLeg.plannedArrivalTime),
+                actual: new Date(tripLeg.plannedArrivalTime)
+            }
+            const differenceTime = {
+                planned: new Date(arrival.planned - departure.planned),
+                actual: new Date(arrival.actual - departure.actual),
+            }
+            
             if (index2 == 0) {
-                departureTime = {
-                    planned: departure,
-                    actual: departure,
-                }
+                departureTime = departure
             } else if (index2 == result.tripLegs.length - 1) {
-                arrivalTime = {
-                    planned: arrival,
-                    actual: arrival,
+                arrivalTime = arrival
+            }
+            
+            const connection = result.connectionLinks.find((connection) => connection.journeyLegIndex == (index2 + 1));
+            let connectionData;
+            if (connection) {
+                const departureConnection = {
+                    planned: new Date(connection.plannedDepartureTime),
+                    actual: new Date(connection.plannedDepartureTime)
+                }
+                const arrivalConnection = {
+                    planned: new Date(connection.plannedArrivalTime),
+                    actual: new Date(connection.plannedArrivalTime)
+                }
+                const differenceTimeConnection = {
+                    planned: new Date(departureConnection.planned - arrivalConnection.planned),
+                    actual: new Date(departureConnection.actual - arrivalConnection.actual)
+                }
+                
+                connectionData = {
+                    departure: departureConnection,
+                    arrival: arrivalConnection,
+                    time: differenceTimeConnection,
+                    line: {
+                        direction: {
+                            name: connection.destination.stopPoint.stopArea.name,
+                            platform: connection.destination.stopPoint.platform
+                        },
+                        designation: connection.transportMode,
+                        type: connection.transportMode
+                    },
+                    stopArea: {
+                        name: connection.origin.stopPoint.stopArea.name,
+                        platform: connection.origin.stopPoint.platform,
+                    },
+
+                    walkDistanceMeters: connection.distanceInMeters,
                 }
             }
 
-            // const connection = result.connectionLinks.find((connection) => connection.journeyLegIndex == (index2 + 1));
-            // let connectionData;
-            // if (connection) {
-            //     const departureConnection = new Date(connection.plannedDepartureTime);
-            //     const arrivalConnection = new Date(connection.plannedArrivalTime);
-            //     const differenceTimeConnection = new Date(departureConnection - arrivalConnection);
-                
-            //     connectionData = {
-            //         type: connection.transportMode,
-            //         departure: {
-            //             planned: departureConnection,
-            //             actual: departureConnection
-            //         },
-            //         arrival: {
-            //             planned: arrivalConnection,
-            //             actual: arrivalConnection
-            //         },
-            //         time: {
-            //             planned: differenceTimeConnection,
-            //             actual: differenceTimeConnection
-            //         },
-            //         line: {
-            //             direction: {
-            //                 name: connection.destination.stopPoint.stopArea.name,
-            //                 platform: connection.destination.stopPoint.platform
-            //             },
-            //         },
-            //         stopArea: {
-            //             name: connection.origin.stopPoint.stopArea.name
-            //         },
-
-            //         distanceMeters: connection.distanceInMeters,
-            //     }
-            // }
-            
             tripLegs.push({
-                departure: {
-                    planned: departure,
-                    actual: departure
-                },
-                arrival: {
-                    planned: arrival,
-                    actual: arrival
-                },
-                time: {
-                    planned: differenceTime,
-                    actual: differenceTime
-                },
+                departure: departure,
+                arrival: arrival,
+                time: differenceTime,
                 line: {
                     direction: {
                         name: tripLeg.destination.stopPoint.stopArea.name,
                         shortName: tripLeg.serviceJourney.line.shortName,
                         platform: tripLeg.destination.stopPoint.platform
                     },
-
-                    backgroundColor: tripLeg.serviceJourney.line.backgroundColor,
-                    borderColor: tripLeg.serviceJourney.line.borderColor,
-                    foregroundColor: tripLeg.serviceJourney.line.foregroundColor,
+                    style: {
+                        backgroundColor: tripLeg.serviceJourney.line.backgroundColor,
+                        borderColor: tripLeg.serviceJourney.line.borderColor,
+                        foregroundColor: tripLeg.serviceJourney.line.foregroundColor,
+                    },
                     designation: tripLeg.serviceJourney.line.designation,
                     type: tripLeg.serviceJourney.line.transportMode,
                     operator: tripLeg.serviceJourney.line.operator,
                 },
                 stopArea: {
-                    name: tripLeg.origin.stopPoint.stopArea.name
+                    name: tripLeg.origin.stopPoint.stopArea.name,
+                    platform: tripLeg.origin.stopPoint.platform
                 },
-                // connection: connectionData
+                connection: connectionData
             })
         }
 
-        const differenceTime = new Date(arrivalTime.planned - departureTime.planned);
-        const differenceTimeActual = new Date(arrivalTime.actual - departureTime.actual);
-        // console.log(arrivalTime.planned)
-        // console.log(departureTime.planned)
-        // console.log(differenceTime)
-        
+        let departureAccessLink;
+        if (result.departureAccessLink) {
+            const departure = {
+                planned: new Date(result.departureAccessLink.plannedDepartureTime),
+                actual: new Date(result.departureAccessLink.plannedDepartureTime)
+            }
+            const arrival = {
+                planned: new Date(result.departureAccessLink.plannedArrivalTime),
+                actual: new Date(result.departureAccessLink.plannedArrivalTime)
+            }
+            const differenceTime = {
+                planned: new Date(departure.planned - arrival.planned),
+                actual: new Date(departure.actual - arrival.actual)
+            };
+
+            departureTime = departure
+
+            departureAccessLink = {
+                departure: departure,
+                arrival: arrival,
+                time: differenceTime,
+                stopArea: {
+                    name: result.departureAccessLink.origin.name
+                },
+                line: {
+                    direction: {
+                        name: result.departureAccessLink.destination.stopPoint.stopArea.name,
+                        platform: result.departureAccessLink.destination.stopPoint.platform
+                    },
+                    style: {
+                        backgroundColor: "#000",
+                        borderColor: "#fff",
+                        foregroundColor: "#fff",
+                    },
+                    designation: result.departureAccessLink.transportMode,
+                    type: result.departureAccessLink.transportMode,
+                },
+
+                walkDistanceMeters: result.departureAccessLink.distanceInMeters,
+            }
+        }
+
+        const differenceTime = {
+            planned: new Date(arrivalTime.planned - departureTime.planned),
+            actual: new Date(arrivalTime.actual - departureTime.actual)
+        }
+
         journeys.push({
             departureTime: departureTime,
             arrivalTime: arrivalTime,
-            time: {
-                planned: differenceTime,
-                actual: differenceTimeActual,
-            },
+            time: differenceTime,
+            departureAccessLink: departureAccessLink,
             tripLegs: tripLegs
         })
     }
 
-    console.log(journeys);
-
     function createJourneyDiv(journey, index) {
         const journeyDiv = createElement(type="div", className="journey");
         journeyDiv.id = `journey-${index}`;
-        
-        const totalTimeDiv = createElement(type="div", className="total-time");
-        const timesDiv = createElement(type="div", className="times");
-        const servicesInfoDiv = createElement(type="div", className="services-info");
+        let innerHTML = ``;
 
         const plannedDepartureTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(journey.departureTime.planned);
         const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(journey.arrivalTime.planned);
-        totalTimeDiv.innerHTML = `${plannedDepartureTimeFormatted} - ${plannedArrivalTimeFormatted}, ${getMinutesDate(journey.time.planned)} min`;
-        
+
+        innerHTML += `
+<div class="total-time">${plannedDepartureTimeFormatted} - ${plannedArrivalTimeFormatted}, ${getMinutesDate(journey.time.planned)} min</div>`;
+
+        let serviceInnerHTML = ``;
+        let serviceInfoInnerHTML = ``;
         function createTripLegDiv(tripLeg) {
-            const serviceDiv = createElement(type="div", className="service");
-
-            const departureDiv = createElement(type="div", className="departure");
-            const plannedDepartureTime = tripLeg.departure.planned;
-            const plannedDepartureTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(plannedDepartureTime);
-            departureDiv.innerHTML = `${plannedDepartureTimeFormatted}`;
-
-            const labelDiv = createElement(type="div", className="label");
-
+            let label;
             if (tripLeg.line.type == "train") {
-                labelDiv.innerHTML = `${tripLeg.line.designation} ${tripLeg.line.direction.shortName}`;
+                label = `${tripLeg.line.designation} ${tripLeg.line.direction.shortName}`;
             } else {
-                labelDiv.innerHTML = `${tripLeg.line.designation}`;
+                label = `${tripLeg.line.designation}`;
             }
-            labelDiv.innerHTML += ` (${getMinutesDate(tripLeg.time.planned)} min)`
 
-            const arriveDiv = createElement(type="div", className="arrive");
-            const plannedArrivalTime = tripLeg.arrival.planned;
-            const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(plannedArrivalTime);
-            arriveDiv.innerHTML = `${plannedArrivalTimeFormatted}`;
+            const plannedDepartureTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(tripLeg.departure.planned);
+            const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(tripLeg.arrival.planned);
 
-            // add to services-info div
-            const serviceInfoDiv = createElement(type="div", className="service");
-            serviceInfoDiv.innerHTML = `${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)`
+            serviceInnerHTML += `
+<div class="service ${tripLeg.line.type}"
+    ${tripLeg.line.style != null ? `style="background-color: ${tripLeg.line.style.backgroundColor}; border-color: ${tripLeg.line.style.borderColor}; color: ${tripLeg.line.style.foregroundColor};"` : ""}
+    >
+    <div class="departure">${plannedDepartureTimeFormatted}</div>
+    <div class="label">${label} ${tripLeg.walkDistanceMeters != null ? `${tripLeg.walkDistanceMeters}m` : ""} (${getMinutesDate(tripLeg.time.planned)} min)</div>
+    <div class="arrive">${plannedArrivalTimeFormatted}</div>
+</div>`;
 
-            servicesInfoDiv.append(serviceInfoDiv);
-
-            serviceDiv.append(departureDiv, labelDiv, arriveDiv);
-
-            return serviceDiv;
+            serviceInfoInnerHTML += `
+<div class="service">${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? `, ${tripLeg.stopArea.platform}` : ""}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)</div>`;
         }
+
+        if (journey.departureAccessLink) {
+            createTripLegDiv(journey.departureAccessLink);
+        };
 
         for (let index2 = 0; index2 < journey.tripLegs.length; index2++) {
             const tripLeg = journey.tripLegs[index2];
             
-            const serviceDiv = createTripLegDiv(tripLeg);
-
-            timesDiv.append(serviceDiv);
+            createTripLegDiv(tripLeg);
 
             if (tripLeg.connection) {
-                const connectionDiv = createTripLegDiv(tripLeg.connection);
-                timesDiv.append(connectionDiv);
+                createTripLegDiv(tripLeg.connection);
             }
         }
 
-        journeyDiv.addEventListener("click", function() {
+        innerHTML += `
+<div class="times">
+${serviceInnerHTML}
+</div>
+<div class="services-info">
+${serviceInfoInnerHTML}
+</div>
+`;
+        journeyDiv.innerHTML = innerHTML;
+
+        const servicesInfoDiv = journeyDiv.querySelector(".services-info");
+        const timesDiv = journeyDiv.querySelector(".times");
+        timesDiv.addEventListener("click", function() {
             if (servicesInfoDiv.style.display === "none" || servicesInfoDiv.style.display === "") {
                 servicesInfoDiv.style.display = "flex";
             }
@@ -216,65 +256,50 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         })
 
-        journeyDiv.append(totalTimeDiv, timesDiv, servicesInfoDiv);
-
         return journeyDiv
     }
 
-    const journeysDiv = document.querySelector(".journeys");
-    journeysDiv.innerHTML = ``;
+    journeysDiv.innerHTML = "";
     for (let index = 0; index < journeys.length; index++) {
         const journey = journeys[index];
 
         const journeyDiv = createJourneyDiv(journey, index);
         
         journeysDiv.append(journeyDiv);
-
-{/* <div class="journey" id="journey-${index}" onclick="toggleInfo(this)">
-        <div class="total-time">
-            12:05 - 13:01, 56 min
-        </div>
-
-        <div class="times">
-            <div class="service">
-                <div class="leave">12:05</div>
-                <div class="label">531 (6 min)</div>
-                <div class="arrive">12:11</div>
-            </div>
-            <div class="change">
-                <div class="leave">12:11</div>
-                <div class="label">Läge 3 (2 min)</div>
-                <div class="arrive">12:13</div>
-            </div>
-            <div class="service">
-                <div class="leave">12:37</div>
-                <div class="label">V-TÅG (17 min)</div>
-                <div class="arrive">12:55</div>
-            </div>
-            <div class="final">
-                <div class="leave">12:55</div>
-                <div class="label">Framme</div>
-                <div class="arrive">13:01</div>
-            </div>
-        </div>
-
-        <div class="services-info">
-            <div class="service">12:05 Lerums Kyrka, 531 Lerum Station, B (6 min)</div>
-            <div class="service">12:11 Byte, Läge 2, Lerum Station (2 min)</div>
-            <div class="service">12:37 Lerum Station, 2, V-TÅG Göteborg C, 1 (17 min)</div>
-            <div class="service">12:55 Framme, Lilla Bommen, (6 min)</div>
-        </div>
-    </div>
-</div> */}
     }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
+    journeysDiv = document.querySelector(".journeys");
+
+    const schoolButton = document.querySelector(".options #school")
+    const homeButton = document.querySelector(".options #home")
+    schoolButton.addEventListener("click", function() {
+        trip = "school";
+        updateJourneyUI();
+    })
+    homeButton.addEventListener("click", function() {
+        trip = "home";
+        updateJourneyUI();
+    })
+
+    updateJourneyUI();
 })
 
 async function getJourneys(token) {
     const url = new URL("https://ext-api.vasttrafik.se/pr/v4/journeys");
 
-    url.searchParams.append("originGid", homeGID);
-    url.searchParams.append("destinationGid", schoolGID);
+    if (trip == "home") {
+        url.searchParams.append("originGid", schoolGID);
+        url.searchParams.append("destinationGid", homeGID);
+    } else {
+        url.searchParams.append("originGid", homeGID);
+        url.searchParams.append("destinationGid", schoolGID);
+    }
     url.searchParams.append("limit", "10");
+    url.searchParams.append("includeNearbyStopAreas", true);
+    url.searchParams.append("includeOccupancy", true);
+    url.searchParams.append("useRealTimeMode", true);
 
     let res = await fetch(url.toString(), {
         headers: {
@@ -289,9 +314,9 @@ async function getJourneys(token) {
 }
 
 async function getStops(token) {
-    const url = "https://ext-api.vasttrafik.se/pr/v4/stop-areas";
+    const url = new URL("https://ext-api.vasttrafik.se/pr/v4/stop-areas");
     
-    let res = await fetch(url, {
+    let res = await fetch(url.toString(), {
         headers: {
             "Content-Type": "Application/json",
             "Authorization": "Bearer " + token.access_token

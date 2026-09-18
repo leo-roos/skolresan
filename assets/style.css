@@ -4,13 +4,26 @@
 }
 
 body {
-  background-color: #eee;
+  background-color: #000;
+  color: #fff;
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
   display: flex;
   flex-direction: column;
   gap: 5px;
   align-items: center;
-  text-align: center;
+  width: -moz-fit-content;
+  width: fit-content;
+  min-height: 100vh;
+  padding: 0 20px;
+  border-left: 1px solid rgba(160, 159, 159, 0.6705882353);
+  border-right: 1px solid rgba(160, 159, 159, 0.6705882353);
 }
 
 main {
@@ -21,7 +34,7 @@ main {
 }
 
 h1, h2, h3, h4 {
-  color: rgb(183, 0, 255);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 p {
@@ -47,46 +60,50 @@ p {
   border-radius: 5px;
   border: none;
   cursor: pointer;
-  transition: scale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.option .options > button:hover {
-  scale: 1.1;
-}
-.option .options > button:active {
-  scale: 0.95;
 }
 
 .journeys {
   display: flex;
   flex-direction: column;
-  width: 25vw;
-  min-width: 500px;
+  align-items: center;
+  gap: 10px;
 }
 .journeys .journey {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 5px;
-  border: 2px solid rgb(183, 0, 255);
+  border: 1px solid rgba(160, 159, 159, 0.6705882353);
   padding: 5px;
   border-radius: 5px;
-  cursor: pointer;
 }
 .journeys .journey .times {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
   align-items: center;
   gap: 5px;
+  cursor: pointer;
 }
-.journeys .journey .times .service, .journeys .journey .times .change, .journeys .journey .times .final {
+.journeys .journey .times .service {
   padding: 5px;
   border: 1px solid #006c93;
+  border-radius: 5px;
   background-color: #006c93;
   color: #ffffff;
+}
+.journeys .journey .times .service.walk {
+  background-color: #000;
+  color: #fff;
+  border-color: #fff;
+  border-style: dashed;
 }
 .journeys .journey .services-info {
   display: none;
   flex-direction: column;
   align-items: start;
+  text-align: start;
   gap: 2px;
+}
+.journeys .journey > div {
+  width: 100%;
 }/*# sourceMappingURL=style.css.map */
