@@ -60,7 +60,8 @@ async function updateJourneyUI() {
             
             if (index2 == 0) {
                 departureTime = departure
-            } else if (index2 == result.tripLegs.length - 1) {
+            }
+            if (index2 == result.tripLegs.length - 1) {
                 arrivalTime = arrival
             }
             
