@@ -1,6 +1,8 @@
 // localStorage.setItem("homeGID", "9021014017153000");
 // localStorage.setItem("schoolGID", "9021014004380000");
 let journeysDiv;
+let journeysDivTitle;
+let loadingText;
 const homeGID = "9021014017153000";
 const schoolGID = "9021014004380000";
 let trip = "home";
@@ -27,12 +29,13 @@ function getMinutesDate(date) {
     return date.getMinutes() + ((date.getHours() - 1) * 60)
 }
 
-async function updateJourneyUI() {
-    journeysDiv.innerHTML = `Loading trips...`;
+async function updateJourneyUI(type) {
+    loadingText.innerHTML = `Loading trips...`;
+    journeysDiv.innerHTML = "";
 
     const token = await checkToken();
     // getStops(token);
-    const journeysData = await getJourneys(token);
+    const journeysData = await getJourneys(token, type);
     const results = journeysData.results;
     const journeys = [];
 
@@ -82,10 +85,10 @@ async function updateJourneyUI() {
                 }
 
                 
-                if (getMinutesDate(differenceTimeConnection.planned) == 0) {
-                    console.log(connection);
-                }
-                console.log(getMinutesDate(differenceTimeConnection.planned));
+                // if (getMinutesDate(differenceTimeConnection.planned) == 0) {
+                //     console.log(connection);
+                // }
+                // console.log(getMinutesDate(differenceTimeConnection.planned));
                 
                 connectionData = {
                     departure: departureConnection,
@@ -191,6 +194,8 @@ async function updateJourneyUI() {
         })
     }
 
+    console.log(journeys[0])
+
     function createJourneyDiv(journey, index) {
         const journeyDiv = createElement(type="div", className="journey");
         journeyDiv.id = `journey-${index}`;
@@ -200,7 +205,11 @@ async function updateJourneyUI() {
         const plannedArrivalTimeFormatted = new Intl.DateTimeFormat('sv-SE', { timeStyle: 'short' }).format(journey.arrivalTime.planned);
 
         innerHTML += `
-<div class="total-time">${plannedDepartureTimeFormatted} - ${plannedArrivalTimeFormatted}, ${getMinutesDate(journey.time.planned)} min</div>`;
+<div class="total-time">
+    <div class="departue">${plannedDepartureTimeFormatted}</div>
+    <div class="difference">${getMinutesDate(journey.time.planned)} min</div>
+    <div class="arrival">${plannedArrivalTimeFormatted}</div>
+</div>`;
 
         let serviceInnerHTML = ``;
         let serviceInfoInnerHTML = ``;
@@ -266,7 +275,9 @@ ${serviceInfoInnerHTML}
         return journeyDiv
     }
 
-    journeysDiv.innerHTML = "";
+    journeysDivTitle.textContent = "Till " + type == "home" ? "hem" : "skolan"
+    loadingText.innerHTML = "";
+
     for (let index = 0; index < journeys.length; index++) {
         const journey = journeys[index];
 
@@ -277,26 +288,40 @@ ${serviceInfoInnerHTML}
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    journeysDiv = document.querySelector(".journeys");
+    if (document.querySelector(".container")?.id != "settings") {
+        return;
+    }
 
+
+});
+
+document.addEventListener('DOMContentLoaded', async function() {
+    if (document.querySelector(".container")?.id != "index") {
+        return;
+    }
+
+    journeysDiv = document.querySelector(".journeys");
+    journeysDivTitle = document.querySelector(".journeys .title");
+    loadingText = document.querySelector("#loading-text");
+   
     const schoolButton = document.querySelector(".options #school")
     const homeButton = document.querySelector(".options #home")
     schoolButton.addEventListener("click", function() {
         trip = "school";
-        updateJourneyUI();
+        updateJourneyUI(trip);
     })
     homeButton.addEventListener("click", function() {
         trip = "home";
-        updateJourneyUI();
+        updateJourneyUI(trip);
     })
 
-    updateJourneyUI();
-})
+    updateJourneyUI(trip);
+});
 
-async function getJourneys(token) {
+async function getJourneys(token, type) {
     const url = new URL("https://ext-api.vasttrafik.se/pr/v4/journeys");
 
-    if (trip == "home") {
+    if (type == "home") {
         url.searchParams.append("originGid", schoolGID);
         url.searchParams.append("destinationGid", homeGID);
     } else {
@@ -331,5 +356,4 @@ async function getStops(token) {
         method: "GET"
     });
     let data = await res.json();
-    console.log(data);
 }

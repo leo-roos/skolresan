@@ -4,7 +4,7 @@
 }
 
 body {
-  background-color: #000;
+  background-color: #131111;
   color: #fff;
   font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
   text-align: center;
@@ -18,12 +18,11 @@ body {
   flex-direction: column;
   gap: 5px;
   align-items: center;
-  width: -moz-fit-content;
-  width: fit-content;
+  min-width: 50vw;
   min-height: 100vh;
   padding: 0 20px;
-  border-left: 1px solid rgba(160, 159, 159, 0.6705882353);
-  border-right: 1px solid rgba(160, 159, 159, 0.6705882353);
+  border-left: 1px solid rgba(92, 91, 91, 0.6705882353);
+  border-right: 1px solid rgba(92, 91, 91, 0.6705882353);
 }
 
 main {
@@ -31,6 +30,15 @@ main {
   flex-direction: column;
   gap: 5px;
   align-items: center;
+}
+main > a {
+  color: #fff;
+  text-decoration: none;
+  background-color: #006c93;
+  padding: 5px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 5px;
 }
 
 h1, h2, h3, h4 {
@@ -62,48 +70,81 @@ p {
   cursor: pointer;
 }
 
-.journeys {
+.journeys-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 25px;
+  width: 100%;
+}
+.journeys-container .journeys {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+  width: 30vw;
 }
-.journeys .journey {
+.journeys-container .journeys .title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.journeys-container .journeys .journey {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  border: 1px solid rgba(160, 159, 159, 0.6705882353);
-  padding: 5px;
-  border-radius: 5px;
+  border: 1px solid rgba(92, 91, 91, 0.6705882353);
+  padding: 10px;
 }
-.journeys .journey .times {
+.journeys-container .journeys .journey .total-time {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+}
+.journeys-container .journeys .journey .times {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   gap: 5px;
   cursor: pointer;
 }
-.journeys .journey .times .service {
+.journeys-container .journeys .journey .times .service {
   padding: 5px;
   border: 1px solid #006c93;
-  border-radius: 5px;
   background-color: #006c93;
   color: #ffffff;
 }
-.journeys .journey .times .service.walk {
+.journeys-container .journeys .journey .times .service.walk {
   background-color: #000;
   color: #fff;
   border-color: #fff;
   border-style: dashed;
 }
-.journeys .journey .services-info {
+.journeys-container .journeys .journey .services-info {
   display: none;
   flex-direction: column;
   align-items: start;
   text-align: start;
   gap: 2px;
 }
-.journeys .journey > div {
+.journeys-container .journeys .journey > div {
   width: 100%;
+}
+
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+form button, form input {
+  background-color: #006c93;
+  padding: 5px 10px;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+}
+form button {
+  margin-top: 10px;
 }/*# sourceMappingURL=style.css.map */

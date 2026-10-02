@@ -20,7 +20,7 @@ body {
     gap: 5px;
     align-items: center;
 
-    width: fit-content;
+    min-width: 50vw;
     min-height: 100vh;
     padding: 0 20px;
     border-left: 1px solid $borderColor;
@@ -32,6 +32,16 @@ main {
     flex-direction: column;
     gap: 5px;
     align-items: center;
+
+    & > a {
+        color: #fff;
+        text-decoration: none;
+        background-color: #006c93;
+        padding: 5px 10px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 5px;
+    }
 }
 
 h1, h2, h3, h4 {
@@ -72,60 +82,99 @@ p {
     }
 }
 
-.journeys {
+.journeys-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    // width: 30vw;
-    // min-width: 500px;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 25px;
+    width: 100%;
     
-    .journey {
-        // width: fit-content;
-        // width: 100%;
+    .journeys {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 5px;
+        gap: 20px;
+        width: 30vw;
+        // min-width: 500px;
 
-        border: 1px solid $borderColor;
-        padding: 5px;
-        border-radius: 5px;
-
-        .times {
+        .title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .journey {
+            // width: fit-content;
+            // width: 100%;
             display: flex;
-            flex-direction: row;
-            // justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             gap: 5px;
-            cursor: pointer;
-    
-            .service {
-                padding: 5px;
-                border: 1px solid #006c93;
-                border-radius: 5px;
-                background-color: #006c93;
-                color: #ffffff;
 
-                &.walk {
-                    background-color: #000;
-                    color: #fff;
-                    border-color: #fff;
-                    border-style: dashed;
+            border: 1px solid $borderColor;
+            padding: 10px;
+            // border-radius: 5px;
+
+            .total-time {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .times {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 5px;
+                cursor: pointer;
+        
+                .service {
+                    padding: 5px;
+                    border: 1px solid #006c93;
+                    // border-radius: 5px;
+                    background-color: #006c93;
+                    color: #ffffff;
+
+                    &.walk {
+                        background-color: #000;
+                        color: #fff;
+                        border-color: #fff;
+                        border-style: dashed;
+                    }
                 }
             }
-        }
 
-        .services-info {
-            display: none;
-            flex-direction: column;
-            align-items: start;
-            text-align: start;
-            gap: 2px;
-        }
+            .services-info {
+                display: none;
+                flex-direction: column;
+                align-items: start;
+                text-align: start;
+                gap: 2px;
+            }
 
-        & > div {
-            width: 100%;
+            & > div {
+                width: 100%;
+            }
         }
+    }
+}
+
+
+form {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    button, input {
+        background-color: #006c93;
+        padding: 5px 10px;
+        color: $textColor;
+        border: none;
+        border-radius: 2px;
+    }
+
+    button {
+        margin-top: 10px;
     }
 }

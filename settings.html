@@ -4,13 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="assets/style.css">
     <script src="assets/supersecret.js"></script>
+    <script src="assets/app.js"></script>
     <script src="assets/settings.js"></script>
 </head>
 <body>
-    
+    <div class="container" id="settings">
+        <header>
+            <img src="assets/img/logo.png" alt="" id="logo">
+            <h1>Västtrafik reseplanerare</h1>
+        </header>
+        <main>
+            <a href="../">Gå tillbaka</a>
+            
+            <form>
+                <label for="school-gid">Skol hållplats GID</label>
+                <input type="text" name="school-gid" id="school-gid">
 
-    
+                <label for="home-gid">Hem hållplats GID</label>
+                <input type="text" name="home-gid" id="home-gid">
+                
+                <button type="submit">Spara</button>
+            </form>
+        </main>
+
+        <footer>
+
+        </footer>
+    </div>
 </body>
 </html>
