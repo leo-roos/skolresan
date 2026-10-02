@@ -76,9 +76,15 @@ async function updateJourneyUI() {
                     actual: new Date(connection.plannedArrivalTime)
                 }
                 const differenceTimeConnection = {
-                    planned: new Date(departureConnection.planned - arrivalConnection.planned),
-                    actual: new Date(departureConnection.actual - arrivalConnection.actual)
+                    planned: new Date(arrivalConnection.planned - departureConnection.planned),
+                    actual: new Date(arrivalConnection.actual - departureConnection.actual)
                 }
+
+                
+                if (getMinutesDate(differenceTimeConnection.planned) == 0) {
+                    console.log(connection);
+                }
+                console.log(getMinutesDate(differenceTimeConnection.planned));
                 
                 connectionData = {
                     departure: departureConnection,
@@ -139,8 +145,8 @@ async function updateJourneyUI() {
                 actual: new Date(result.departureAccessLink.plannedArrivalTime)
             }
             const differenceTime = {
-                planned: new Date(departure.planned - arrival.planned),
-                actual: new Date(departure.actual - arrival.actual)
+                planned: new Date(arrival.planned - departure.planned),
+                actual: new Date(arrival.actual - departure.actual)
             };
 
             departureTime = departure
@@ -171,8 +177,8 @@ async function updateJourneyUI() {
         }
 
         const differenceTime = {
-            planned: new Date(arrivalTime.planned - departureTime.planned),
-            actual: new Date(arrivalTime.actual - departureTime.actual)
+            planned: new Date(arrivalTime?.planned - departureTime?.planned),
+            actual: new Date(arrivalTime?.actual - departureTime?.actual)
         }
 
         journeys.push({
