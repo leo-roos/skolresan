@@ -1,8 +1,11 @@
 // localStorage.setItem("homeGID", "9021014017153000");
 // localStorage.setItem("schoolGID", "9021014004380000");
 let journeysDiv;
-let journeysDivTitle;
 let loadingText;
+let modal;
+let modalTitle;
+let modalContent;
+
 const homeGID = "9021014017153000";
 const schoolGID = "9021014004380000";
 let trip = "home";
@@ -30,14 +33,24 @@ function getMinutesDate(date) {
 }
 
 async function updateJourneyUI(type) {
+    let journeysDiv;
+    if (type == "home") {
+        journeysDiv = document.querySelector("#home-journeys");
+    } else {
+        journeysDiv = document.querySelector("#school-journeys");
+    }
+
     loadingText.innerHTML = `Loading trips...`;
-    journeysDiv.innerHTML = "";
+    journeysDiv.innerHTML = `<div class="title">Till ${(type == "home" ? "hem" : "skolan")}</div>`;
 
     const token = await checkToken();
     // getStops(token);
     const journeysData = await getJourneys(token, type);
     const results = journeysData.results;
     const journeys = [];
+    
+    console.log(type);
+    console.log(results);
 
     for (let index = 0; index < results.length; index++) {
         const result = results[index];
@@ -60,14 +73,16 @@ async function updateJourneyUI(type) {
                 planned: new Date(arrival.planned - departure.planned),
                 actual: new Date(arrival.actual - departure.actual),
             }
-            
+
             if (index2 == 0) {
                 departureTime = departure
             }
             if (index2 == result.tripLegs.length - 1) {
                 arrivalTime = arrival
             }
-            
+
+            // console.log(getMinutesDate(differenceTime))
+
             const connection = result.connectionLinks.find((connection) => connection.journeyLegIndex == (index2 + 1));
             let connectionData;
             if (connection) {
@@ -84,7 +99,6 @@ async function updateJourneyUI(type) {
                     actual: new Date(arrivalConnection.actual - departureConnection.actual)
                 }
 
-                
                 // if (getMinutesDate(differenceTimeConnection.planned) == 0) {
                 //     console.log(connection);
                 // }
@@ -138,47 +152,62 @@ async function updateJourneyUI(type) {
             })
         }
 
+        let arrivalAccessLink;
         let departureAccessLink;
-        if (result.departureAccessLink) {
+        const accessLinks = [result.departureAccessLink, result.arrivalAccessLink];
+        for (let index = 0; index < accessLinks.length; index++) {
+            const accessLink = accessLinks[index];
+
+            if (!accessLink) {
+                continue;
+            }
+
             const departure = {
-                planned: new Date(result.departureAccessLink.plannedDepartureTime),
-                actual: new Date(result.departureAccessLink.plannedDepartureTime)
+                planned: new Date(accessLink.plannedDepartureTime),
+                actual: new Date(accessLink.plannedDepartureTime)
             }
             const arrival = {
-                planned: new Date(result.departureAccessLink.plannedArrivalTime),
-                actual: new Date(result.departureAccessLink.plannedArrivalTime)
+                planned: new Date(accessLink.plannedArrivalTime),
+                actual: new Date(accessLink.plannedArrivalTime)
             }
             const differenceTime = {
                 planned: new Date(arrival.planned - departure.planned),
                 actual: new Date(arrival.actual - departure.actual)
             };
 
-            departureTime = departure
 
-            departureAccessLink = {
+            data = {
                 departure: departure,
                 arrival: arrival,
                 time: differenceTime,
                 stopArea: {
-                    name: result.departureAccessLink.origin.name
+                    name: accessLink.origin.name
                 },
                 line: {
                     direction: {
-                        name: result.departureAccessLink.destination.stopPoint.stopArea.name,
-                        platform: result.departureAccessLink.destination.stopPoint.platform
+                        name: accessLink.destination.name,
+                        platform: accessLink.destination.platform
                     },
                     style: {
                         backgroundColor: "#000",
                         borderColor: "#fff",
                         foregroundColor: "#fff",
                     },
-                    designation: result.departureAccessLink.transportMode,
-                    type: result.departureAccessLink.transportMode,
+                    designation: accessLink.transportMode,
+                    type: accessLink.transportMode,
                 },
 
-                walkDistanceMeters: result.departureAccessLink.distanceInMeters,
+                walkDistanceMeters: accessLink.distanceInMeters,
             }
-        }
+
+            if (index == 0) {
+                departureAccessLink = data;
+                departureTime = departure;
+            } else {
+                arrivalAccessLink = data;
+                arrivalTime = arrival;
+            }
+        };
 
         const differenceTime = {
             planned: new Date(arrivalTime?.planned - departureTime?.planned),
@@ -190,11 +219,10 @@ async function updateJourneyUI(type) {
             arrivalTime: arrivalTime,
             time: differenceTime,
             departureAccessLink: departureAccessLink,
+            arrivalAccessLink: arrivalAccessLink,
             tripLegs: tripLegs
         })
     }
-
-    console.log(journeys[0])
 
     function createJourneyDiv(journey, index) {
         const journeyDiv = createElement(type="div", className="journey");
@@ -212,11 +240,13 @@ async function updateJourneyUI(type) {
 </div>`;
 
         let serviceInnerHTML = ``;
+
         let serviceInfoInnerHTML = ``;
+        let newServiceInfoInnerHTML = ``;
         function createTripLegDiv(tripLeg) {
             let label;
             if (tripLeg.line.type == "train") {
-                label = `${tripLeg.line.designation} ${tripLeg.line.direction.shortName}`;
+                label = `${tripLeg.line.direction.shortName}`;
             } else {
                 label = `${tripLeg.line.designation}`;
             }
@@ -228,13 +258,25 @@ async function updateJourneyUI(type) {
 <div class="service ${tripLeg.line.type}"
     ${tripLeg.line.style != null ? `style="background-color: ${tripLeg.line.style.backgroundColor}; border-color: ${tripLeg.line.style.borderColor}; color: ${tripLeg.line.style.foregroundColor};"` : ""}
     >
-    <div class="departure">${plannedDepartureTimeFormatted}</div>
-    <div class="label">${label} ${tripLeg.walkDistanceMeters != null ? `${tripLeg.walkDistanceMeters}m` : ""} (${getMinutesDate(tripLeg.time.planned)} min)</div>
-    <div class="arrive">${plannedArrivalTimeFormatted}</div>
+    <div class="label">${label} ${tripLeg.walkDistanceMeters != null ? `${tripLeg.walkDistanceMeters}m` : ""}</div>
 </div>`;
 
-            serviceInfoInnerHTML += `
-<div class="service">${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? `, ${tripLeg.stopArea.platform}` : ""}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)</div>`;
+            newServiceInfoInnerHTML += `
+<div>${label} avgår ${plannedDepartureTimeFormatted} från ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? `, ${tripLeg.stopArea.platform}` : ""} och anländer vid ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform}</div>
+`;
+// <div class="service">${plannedDepartureTimeFormatted}, ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? `, ${tripLeg.stopArea.platform}` : ""}, ${tripLeg.line.designation}, ${tripLeg.line.direction.name}, ${tripLeg.line.direction.platform} (${getMinutesDate(tripLeg.time.planned)} min)</div>`;
+            const timeDifference = getMinutesDate(tripLeg.time.planned);
+            serviceInfoInnerHTML += `<div class="service">`;
+            serviceInfoInnerHTML += ``;
+            serviceInfoInnerHTML += `${plannedDepartureTimeFormatted} `;
+            serviceInfoInnerHTML += `<span class="${timeDifference < 1 ? "warning" : ""}">(${timeDifference} min)</span>, `;
+            serviceInfoInnerHTML += `${tripLeg.line.designation}: ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? ` (${tripLeg.stopArea.platform})` : ""} - `;
+            if (tripLeg.stopArea.name != tripLeg.line.direction.name) {
+                serviceInfoInnerHTML += `${tripLeg.line.direction.name} (${tripLeg.line.direction.platform})`;
+            } else {
+                serviceInfoInnerHTML += `plattform ${tripLeg.line.direction.platform}`;
+            }
+            serviceInfoInnerHTML += `</div>`;
         }
 
         if (journey.departureAccessLink) {
@@ -251,6 +293,9 @@ async function updateJourneyUI(type) {
             }
         }
 
+        if (journey.arrivalAccessLink) {
+            createTripLegDiv(journey.arrivalAccessLink);
+        };
         innerHTML += `
 <div class="times">
 ${serviceInnerHTML}
@@ -264,6 +309,14 @@ ${serviceInfoInnerHTML}
         const servicesInfoDiv = journeyDiv.querySelector(".services-info");
         const timesDiv = journeyDiv.querySelector(".times");
         timesDiv.addEventListener("click", function() {
+            // if (modal.classList.contains("show")) {
+            //     modal.classList.remove("show");
+            // } else {
+            //     modalTitle.textContent = `Vald resa: ${plannedDepartureTimeFormatted} - ${plannedArrivalTimeFormatted}`;
+            //     modalContent.innerHTML = newServiceInfoInnerHTML;
+            //     modal.classList.add("show");
+            // }
+
             if (servicesInfoDiv.style.display === "none" || servicesInfoDiv.style.display === "") {
                 servicesInfoDiv.style.display = "flex";
             }
@@ -275,7 +328,6 @@ ${serviceInfoInnerHTML}
         return journeyDiv
     }
 
-    journeysDivTitle.textContent = "Till " + type == "home" ? "hem" : "skolan"
     loadingText.innerHTML = "";
 
     for (let index = 0; index < journeys.length; index++) {
@@ -301,37 +353,57 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     journeysDiv = document.querySelector(".journeys");
-    journeysDivTitle = document.querySelector(".journeys .title");
     loadingText = document.querySelector("#loading-text");
-   
-    const schoolButton = document.querySelector(".options #school")
-    const homeButton = document.querySelector(".options #home")
-    schoolButton.addEventListener("click", function() {
-        trip = "school";
-        updateJourneyUI(trip);
-    })
-    homeButton.addEventListener("click", function() {
-        trip = "home";
-        updateJourneyUI(trip);
-    })
 
-    updateJourneyUI(trip);
+    modal = document.querySelector(".modal");
+    modalTitle = document.querySelector(".modal .header .title");
+    modalContent = document.querySelector(".modal .content");
+   
+    // const schoolButton = document.querySelector(".options #school")
+    // const homeButton = document.querySelector(".options #home")
+    // schoolButton.addEventListener("click", function() {
+    //     trip = "school";
+    //     updateJourneyUI(trip);
+    // })
+    // homeButton.addEventListener("click", function() {
+    //     trip = "home";
+    //     updateJourneyUI(trip);
+    // })
+
+    updateJourneyUI("school");
+    updateJourneyUI("home");
 });
 
 async function getJourneys(token, type) {
     const url = new URL("https://ext-api.vasttrafik.se/pr/v4/journeys");
 
+    const homeLatitude = "57.780657";
+    const homeLongitude = "12.288071";
+    const schoolLatitude = "57.7086";
+    const schoolLongitude = "11.9665";
+
     if (type == "home") {
-        url.searchParams.append("originGid", schoolGID);
-        url.searchParams.append("destinationGid", homeGID);
+        // url.searchParams.append("originGid", schoolGID);
+        // url.searchParams.append("destinationGid", homeGID);
+
+        url.searchParams.append("originLatitude", schoolLatitude);
+        url.searchParams.append("originLongitude", schoolLongitude);
+        url.searchParams.append("destinationLatitude", homeLatitude);
+        url.searchParams.append("destinationLongitude", homeLongitude);
     } else {
-        url.searchParams.append("originGid", homeGID);
-        url.searchParams.append("destinationGid", schoolGID);
+        // url.searchParams.append("originGid", homeGID);
+        // url.searchParams.append("destinationGid", schoolGID);
+
+        url.searchParams.append("originLatitude", homeLatitude);
+        url.searchParams.append("originLongitude", homeLongitude);
+        url.searchParams.append("destinationLatitude", schoolLatitude);
+        url.searchParams.append("destinationLongitude", schoolLongitude);
     }
     url.searchParams.append("limit", "10");
     url.searchParams.append("includeNearbyStopAreas", true);
     url.searchParams.append("includeOccupancy", true);
     url.searchParams.append("useRealTimeMode", true);
+    url.searchParams.append("interchangeDurationInMinutes", 4);
 
     let res = await fetch(url.toString(), {
         headers: {

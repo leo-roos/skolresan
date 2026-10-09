@@ -14,6 +14,7 @@ body {
 }
 
 .container {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -30,6 +31,7 @@ main {
   flex-direction: column;
   gap: 5px;
   align-items: center;
+  width: 100%;
 }
 main > a {
   color: #fff;
@@ -73,8 +75,8 @@ p {
 .journeys-container {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  gap: 25px;
+  gap: 15px;
+  justify-content: space-around;
   width: 100%;
 }
 .journeys-container .journeys {
@@ -82,7 +84,7 @@ p {
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  width: 30vw;
+  width: 100%;
 }
 .journeys-container .journeys .title {
   font-size: 20px;
@@ -93,7 +95,9 @@ p {
   flex-direction: column;
   align-items: center;
   gap: 5px;
+  width: 100%;
   border: 1px solid rgba(92, 91, 91, 0.6705882353);
+  box-sizing: border-box;
   padding: 10px;
 }
 .journeys-container .journeys .journey .total-time {
@@ -104,7 +108,7 @@ p {
 .journeys-container .journeys .journey .times {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: start;
   align-items: center;
   gap: 5px;
   cursor: pointer;
@@ -114,6 +118,7 @@ p {
   border: 1px solid #006c93;
   background-color: #006c93;
   color: #ffffff;
+  width: 100px;
 }
 .journeys-container .journeys .journey .times .service.walk {
   background-color: #000;
@@ -128,8 +133,43 @@ p {
   text-align: start;
   gap: 2px;
 }
+.journeys-container .journeys .journey .services-info .service span.warning {
+  color: red;
+}
 .journeys-container .journeys .journey > div {
   width: 100%;
+}
+
+.modal {
+  position: fixed;
+  box-sizing: border-box;
+  width: 700px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 400px;
+  padding: 25px;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid rgba(92, 91, 91, 0.6705882353);
+  background-color: rgba(19, 17, 17, 0.937254902);
+  backdrop-filter: blur(5px);
+}
+.modal .header {
+  display: flex;
+  position: relative;
+  justify-content: center;
+}
+.modal .header .close {
+  position: absolute;
+  right: 0;
+}
+.modal .content {
+  flex: 1;
+}
+.modal.show {
+  display: flex;
 }
 
 form {

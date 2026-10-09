@@ -16,17 +16,21 @@
         </header>
         <main>
             <a href="settings">Inställningar</a>
-            <div class="option">
+            <!-- <div class="option">
                 <h3 class="title">Vart vill du åka?</h3>
                 <div class="options">
                     <button id="school">Skolan</button>
                     <button id="home">Hem</button>
                 </div>
-            </div>
+            </div> -->
 
             <div id="loading-text"></div>
             <div class="journeys-container">
-                <div class="journeys">
+                <div class="journeys" id="school-journeys">
+                    <div class="title">Till skolan</div>    
+                </div>
+
+                <div class="journeys" id="home-journeys">
                     <div class="title">Till hem</div>
 
                     <!-- <div class="journey" id="journey-1" onclick="toggleInfo(this)">
@@ -69,6 +73,16 @@
                 </div>
             </div>
         </main>
+
+        <div class="modal">
+            <div class="header">
+                <div class="title">Vald resa: 10:15 - 11:05</div>
+                <button class="close">X</button>
+            </div>
+            <div class="content">
+                aasdad
+            </div>
+        </div>
 
         <footer>
 
