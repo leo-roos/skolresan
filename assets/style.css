@@ -105,6 +105,9 @@ p {
   flex-direction: row;
   justify-content: space-between;
 }
+.journeys-container .journeys .journey .label {
+  padding: 3px;
+}
 .journeys-container .journeys .journey .times {
   display: flex;
   flex-direction: row;
