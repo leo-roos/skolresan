@@ -10,9 +10,14 @@ document.addEventListener("DOMContentLoaded", function() {
         center: [57.7011712, 11.9701504],
         zoom: 11
     })
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    // L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //     maxZoom: 19,
+    //     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    // }).addTo(map);
+    L.tileLayer('https://tile.memomaps.de/tilegen/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                    'Map style &copy; <a href="http://memomaps.de">memomaps.de</a>'
     }).addTo(map);
 
     var popup = L.popup();
