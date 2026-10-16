@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
     <link rel="stylesheet" href="assets/style.css">
     <script src="assets/supersecret.js"></script>
     <script src="assets/app.js"></script>
@@ -16,16 +24,33 @@
             <h1>Västtrafik reseplanerare</h1>
         </header>
         <main>
-            <a href="../">Gå tillbaka</a>
+            <a href="./">Gå tillbaka</a>
+            
+            <div id="map"></div>
+
+            <div class="buttons">
+                <button id="start-school-coordinates">Börja välja Skolans koordinater</button>
+                <button id="start-home-coordinates">Börja välja Hem koordinater</button>
+            </div>
             
             <form>
-                <label for="school-gid">Skol hållplats GID</label>
+                <label for="school-longitude">Skolans Longitude</label>
+                <input type="text" name="school-longitude" id="school-longitude">
+
+                <label for="school-latitude">Skolans Latitude</label>
+                <input type="text" name="school-latitude" id="school-latitude">
+
+                <label for="home-longitude">Hem Longitude</label>
+                <input type="text" name="home-longitude" id="home-longitude">
+
+                <label for="home-latitude">Hem Latitude</label>
+                <input type="text" name="home-latitude" id="home-latitude">
+
+                <!-- <label for="school-gid">Skol hållplats GID</label>
                 <input type="text" name="school-gid" id="school-gid">
 
                 <label for="home-gid">Hem hållplats GID</label>
-                <input type="text" name="home-gid" id="home-gid">
-                
-                <button type="submit">Spara</button>
+                <input type="text" name="home-gid" id="home-gid"> -->
             </form>
         </main>
 

@@ -10,6 +10,13 @@ const homeGID = "9021014017153000";
 const schoolGID = "9021014004380000";
 let trip = "home";
 
+function getCoordinates(type) {
+    const long = localStorage.getItem(`${type}-long`);
+    const lat = localStorage.getItem(`${type}-lat`);
+
+    return {long: long.toString(), lat: lat.toString()};
+}
+
 function createElement(type = "div", className = "", classNames = [], id = "") {
     const element = document.createElement(type);
     if (className != "") {
@@ -34,14 +41,19 @@ function getMinutesDate(date) {
 
 async function updateJourneyUI(type) {
     let journeysDiv;
+    let loadingText;
     if (type == "home") {
         journeysDiv = document.querySelector("#home-journeys");
     } else {
         journeysDiv = document.querySelector("#school-journeys");
     }
 
+    journeysDiv.innerHTML = `
+    <div class="title">Till ${(type == "home" ? "hem" : "skolan")}</div>
+    <div id="loading-text"></div>
+    `;
+    loadingText = journeysDiv.querySelector("#loading-text");
     loadingText.innerHTML = `Loading trips...`;
-    journeysDiv.innerHTML = `<div class="title">Till ${(type == "home" ? "hem" : "skolan")}</div>`;
 
     const token = await checkToken();
     // getStops(token);
@@ -175,18 +187,29 @@ async function updateJourneyUI(type) {
                 actual: new Date(arrival.actual - departure.actual)
             };
 
+            let destinationName;
+            let originName;
+            if (type == "home" && index == 0) {
+                originName = "Skolan";
+            } else if (type == "home" && index == 1) {
+                destinationName = "Hem";
+            } else if (type == "school" && index == 0) {
+                originName = "Hem";
+            } else if (type == "school" && index == 1) {
+                destinationName = "Skolan";
+            }
 
             data = {
                 departure: departure,
                 arrival: arrival,
                 time: differenceTime,
                 stopArea: {
-                    name: accessLink.origin.name
+                    name: originName || accessLink.origin.name || accessLink.origin.stopPoint?.stopArea?.name,
                 },
                 line: {
                     direction: {
-                        name: accessLink.destination.name,
-                        platform: accessLink.destination.platform
+                        name: destinationName || accessLink.destination.name || accessLink.destination.stopPoint?.stopArea?.name,
+                        platform: accessLink.destination.platform || accessLink.destination.stopPoint?.platform
                     },
                     style: {
                         backgroundColor: "#000",
@@ -271,10 +294,15 @@ async function updateJourneyUI(type) {
             serviceInfoInnerHTML += `${plannedDepartureTimeFormatted} `;
             serviceInfoInnerHTML += `<span class="${timeDifference < 1 ? "warning" : ""}">(${timeDifference} min)</span>, `;
             serviceInfoInnerHTML += `${tripLeg.line.designation}: ${tripLeg.stopArea.name}${tripLeg.stopArea.platform != null ? ` (${tripLeg.stopArea.platform})` : ""} - `;
-            if (tripLeg.stopArea.name != tripLeg.line.direction.name) {
-                serviceInfoInnerHTML += `${tripLeg.line.direction.name} (${tripLeg.line.direction.platform})`;
-            } else {
-                serviceInfoInnerHTML += `plattform ${tripLeg.line.direction.platform}`;
+            if (tripLeg.line.direction.platform != undefined) {
+                if (tripLeg.stopArea.name != tripLeg.line.direction.name) {
+                    serviceInfoInnerHTML += `${tripLeg.line.direction.name} (${tripLeg.line.direction.platform})`;
+                } else {
+                    serviceInfoInnerHTML += `plattform ${tripLeg.line.direction.platform}`;
+                }
+            }
+            else {
+                serviceInfoInnerHTML += `${tripLeg.line.direction.name}`;
             }
             serviceInfoInnerHTML += `</div>`;
         }
@@ -352,9 +380,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
     }
 
-    journeysDiv = document.querySelector(".journeys");
-    loadingText = document.querySelector("#loading-text");
-
     modal = document.querySelector(".modal");
     modalTitle = document.querySelector(".modal .header .title");
     modalContent = document.querySelector(".modal .content");
@@ -377,27 +402,25 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function getJourneys(token, type) {
     const url = new URL("https://ext-api.vasttrafik.se/pr/v4/journeys");
 
-    const homeLatitude = "57.780657";
-    const homeLongitude = "12.288071";
-    const schoolLatitude = "57.7086";
-    const schoolLongitude = "11.9665";
+    const homeCoordinates = getCoordinates("home");
+    const schoolCoordinates = getCoordinates("school");
 
     if (type == "home") {
         // url.searchParams.append("originGid", schoolGID);
         // url.searchParams.append("destinationGid", homeGID);
 
-        url.searchParams.append("originLatitude", schoolLatitude);
-        url.searchParams.append("originLongitude", schoolLongitude);
-        url.searchParams.append("destinationLatitude", homeLatitude);
-        url.searchParams.append("destinationLongitude", homeLongitude);
+        url.searchParams.append("originLatitude", schoolCoordinates.lat);
+        url.searchParams.append("originLongitude", schoolCoordinates.long);
+        url.searchParams.append("destinationLatitude", homeCoordinates.lat);
+        url.searchParams.append("destinationLongitude", homeCoordinates.long);
     } else {
         // url.searchParams.append("originGid", homeGID);
         // url.searchParams.append("destinationGid", schoolGID);
 
-        url.searchParams.append("originLatitude", homeLatitude);
-        url.searchParams.append("originLongitude", homeLongitude);
-        url.searchParams.append("destinationLatitude", schoolLatitude);
-        url.searchParams.append("destinationLongitude", schoolLongitude);
+        url.searchParams.append("originLatitude", homeCoordinates.lat);
+        url.searchParams.append("originLongitude", homeCoordinates.long);
+        url.searchParams.append("destinationLatitude", schoolCoordinates.lat);
+        url.searchParams.append("destinationLongitude", schoolCoordinates.long);
     }
     url.searchParams.append("limit", "10");
     url.searchParams.append("includeNearbyStopAreas", true);
